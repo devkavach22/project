@@ -4,12 +4,27 @@ from io import BytesIO
 from chain.pdf_parser_chain import get_spacefix_data
 import base64
 import sys,os
+from fastapi.middleware.cors import CORSMiddleware
 
 # Add the project root to sys.path so that 'schemas' can be found when this file is run directly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:3000",
+    "https://your-frontend-domain.com",
+    "*"
+    # Add other allowed origins as needed
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,  # Allows cookies, authorization headers, etc.
+    allow_methods=["*"],     # Allows all standard methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],     # Allows all headers
+)
 
 # -----------------------------
 # PDF Extract Function
@@ -61,25 +76,32 @@ def extract_pdf_content(file_bytes: bytes) -> dict:
 # Upload Route
 # -----------------------------
 @app.post("/upload")
-async def upload(   file: UploadFile = File(...)):
+async def upload(file: UploadFile = File(..., description="The PDF file to extract data from")):
+    # 1. Basic validation
+    if not file.filename.lower().endswith(".pdf"):
+        return {"error": "Only PDF files are supported"}
 
     # Read uploaded file
     file_bytes = await file.read()
+    
+    if len(file_bytes) == 0:
+        return {"error": "Uploaded file is empty"}
 
     # Extract data from PDF
     extracted_pdf_data = extract_pdf_content(file_bytes)
     
-    # Extract data from PDF
+    # Extract data from PDF (Chain)
     extracted_spacefix_data = get_spacefix_data(extracted_pdf_data["text"])
 
-    # Now you can use this variable anywhere
-    print(extracted_pdf_data)
+    # Log/Print extraction summary
+    print(f"Processed file: {file.filename}, Text length: {len(extracted_pdf_data['text'])}")
 
     return {
+        "status": "success",
         "filename": file.filename,
-        "extracted_text": extracted_spacefix_data,  # preview
-        "images no":len(extracted_pdf_data["images"]),
-        "images":extracted_pdf_data["images"]
+        "extracted_text": extracted_spacefix_data,
+        "images_count": len(extracted_pdf_data["images"]),
+        "images_preview": extracted_pdf_data["images"][:2] if extracted_pdf_data["images"] else []
     }
 
 
