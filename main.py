@@ -5,6 +5,7 @@ from chain.pdf_parser_chain import get_spacefix_data
 import base64
 import sys,os
 from fastapi.middleware.cors import CORSMiddleware
+from schemas.SpaceFix_Schema import SpaceFixSchema
 
 # Add the project root to sys.path so that 'schemas' can be found when this file is run directly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -75,7 +76,7 @@ def extract_pdf_content(file_bytes: bytes) -> dict:
 # -----------------------------
 # Upload Route
 # -----------------------------
-@app.post("/upload")
+@app.post("/upload",response_model=SpaceFixSchema)
 async def upload(file: UploadFile = File(..., description="The PDF file to extract data from")):
     # 1. Basic validation
     if not file.filename.lower().endswith(".pdf"):
@@ -101,8 +102,15 @@ async def upload(file: UploadFile = File(..., description="The PDF file to extra
         "filename": file.filename,
         "extracted_text": extracted_spacefix_data,
         "images_count": len(extracted_pdf_data["images"]),
-        "images_preview": extracted_pdf_data["images"][:2] if extracted_pdf_data["images"] else []
+        "images_preview": extracted_pdf_data["images"] if extracted_pdf_data["images"] else []
     }
+
+
+# from pydantic import BaseModel
+
+# class Item(BaseModel):
+#     name: str
+#     description: str
 
 
 @app.get("/")

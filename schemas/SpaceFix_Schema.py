@@ -40,7 +40,8 @@ class MNPDetails(BaseModel):
 # MAIN SPACEFIX MODEL
 # -------------------------------
 class SpaceFixSchema(BaseModel):
-
+    status: str = ""
+    filename:str = ""
     logo_name: str = ""
     caf_no: str = ""
     service_type: str = ""
@@ -65,3 +66,5 @@ class SpaceFixSchema(BaseModel):
 
     declaration_by_pos: str = ""
     photos: List[str] = Field(default_factory=list)
+    images_count:int = 0
+    images_preview:List[str] = Field(default_factory=list)
