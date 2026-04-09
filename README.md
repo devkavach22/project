@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>🚀 SpaceFix CAF Parser API</h1>
-  <p><strong>Intelligent Telecom Customer Acquisition Form (CAF) Data Extraction</strong></p>
+  <h1>🚀  </h1>
+  <p><strong>  </strong></p>
 </div>
 
 ---

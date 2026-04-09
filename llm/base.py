@@ -17,7 +17,7 @@ def get_llm():
     return ChatOpenAI(
         model=os.getenv("OPENROUTER_MODEL"),
         temperature=0,
-        # max_tokens=1000, # Set a limit to stay within your credit budget
+        max_tokens=1500, # Set a limit to stay within your credit budget
         base_url=os.getenv("OPENAI_API_BASE", "https://openrouter.ai/api/v1"),
         api_key=os.getenv("OPENAI_API_KEY"),
     )
