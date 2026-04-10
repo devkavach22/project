@@ -2,6 +2,7 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 import io
 from pypdf import PdfReader
 from chain.CV_data_chain import get_cv_data_from_openrouter_model
+from schemas.cv_data_schema import CVSchema
 
 router = APIRouter()
 
