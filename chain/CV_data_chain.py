@@ -25,9 +25,8 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 llm = ChatOpenAI(
     model=os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001"),
-    # model=os.getenv("OPENROUTER_MODEL","openai/gpt-oss-20b:free"), #openai/gpt-oss-20b:free
     temperature=0,
-    max_tokens=4000,
+    max_tokens=1500,
 )
 
 
@@ -98,8 +97,8 @@ def get_cv_data_from_openrouter_model(cv_text: str) -> dict:
         
     except Exception as e:
         print(f"Error in CV parsing chain: {e}")
-        # Return an empty/minimal schema dict on failure to avoid total crash
-        return CVSchema().model_dump()
+        # Re-raise the exception to be handled by the API layer
+        raise e
 
 
 # -----------------------------------------------------

@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # install package manager 
-pipx install uv
+RUN pipx install uv
 
 # Install dependencies
 RUN uv sync
