@@ -12,19 +12,19 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # install package manager 
-RUN pipx install uv
+RUN pip install uv
 
 # Install dependencies
-RUN uv sync
+CMD uv sync
 
 # Copy directory
-Copy . .
+COPY . .
 
 # Expose Port
 EXPOSE 8888
 
 
 #  Run command 
-CMD ["uv","run","fastapi","run","--port","8888"]
+CMD ["uv","run","fastapi","run","main.py","--port","8888"]
 
 
