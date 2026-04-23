@@ -9,6 +9,7 @@ dependencies = [
     "langchain-core>=1.2.18",
     "langchain-ollama>=1.0.1",
     "langchain-openai>=1.1.11",
+    "openrouter>=0.9.1",
     "pydantic>=2.12.5",
     "pypdf[image]>=6.8.0",
     "python-dotenv>=1.2.2",

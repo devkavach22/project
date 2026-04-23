@@ -2,6 +2,7 @@ import os
 import time
 from dotenv import load_dotenv
 
+from openrouter import OpenRouter
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -39,6 +40,22 @@ def create_llm(cv_text: str, max_tokens_override=None):
         base_url="https://openrouter.ai/api/v1",
     )
 
+
+# open router sdk
+#  write this in function 
+
+def open_router_sdk(cv_text: str):
+    with OpenRouter(
+        api_key=os.getenv("OPENROUTER_API_KEY")
+    ) as client:
+        response = client.chat.send(
+            model="anthropic/claude-sonnet-4",
+        messages=[
+            {"role": "user", "content": "Explain quantum computing in simple terms."}
+        ]
+    )
+
+    print(response.choices[0].message.content)
 
 # -----------------------------------------------------
 # 🔹 3. Output Parser
