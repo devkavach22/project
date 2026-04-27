@@ -32,10 +32,10 @@ def create_llm(cv_text: str, max_tokens_override=None):
     max_tokens = max_tokens_override or get_safe_max_tokens(cv_text)
 
     return ChatOpenAI(
-        model="openai/gpt-oss-120b:free",
+        model="openai/gpt-oss-20b:free",
         temperature=0,
         max_tokens=max_tokens,
-        timeout=60,
+        timeout=25,
         api_key=os.getenv("OPENAI_API_KEY"),  # ✅ use env, not hardcoded
         base_url="https://openrouter.ai/api/v1",
     )

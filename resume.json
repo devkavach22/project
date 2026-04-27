@@ -1,0 +1,175 @@
+{
+  "full_name": "Vishnu Sharma",
+  "gender": "Male",
+  "dob": "12/25/94",
+  "religion": null,
+  "marital_status": "Unmarried",
+  "current_company": "M/s BONY POLYMERS PVT LTD",
+  "current_designation": "Sr. Marketing Executive",
+  "total_experience": "8+ years",
+  "relevant_experience": null,
+  "total_companies_worked": 3,
+  "current_country": "India",
+  "current_state": null,
+  "current_city": "Faridabad",
+  "preferred_country": null,
+  "preferred_state": null,
+  "preferred_city": null,
+  "hometown": null,
+  "graduation_degree": "BBA",
+  "graduation_specialization": "General Studies",
+  "graduation_year": "2014-2016",
+  "post_graduation_degree": "MBA",
+  "post_graduation_specialization": "Marketing",
+  "post_graduation_year": "2016-2018",
+  "department": "Sales Marketing & Vendor Development / Purchase (SCM) Department",
+  "role": "Business Developer / Marketing Executive",
+  "industry": "Automobile",
+  "reason_for_change": null,
+  "is_permanent": null,
+  "is_contractual": null,
+  "is_full_time": null,
+  "is_part_time": null,
+  "preferred_shift": null,
+  "preferred_work_locations": [],
+  "expected_ctc": null,
+  "notice_period": null,
+  "status": null,
+  "remarks": "Looking forward to opportunities where I can utilize my skills and face challenges to secure a good position in the industry.",
+  "summary": "A dynamic professional with over 8+ years of rich experience as a Business Developer / Sales Marketing & Vendor Development / Purchase (SCM) Department. Fervent follower of the automobile Industry. Excellent analytical and data inference skills. Ability to merge domain knowledge with innovative thinking producing value solutions. Excellent written, oral & interpersonal communication skills.",
+  "contact_info": {
+    "email": "automobile942@gmail.com",
+    "phone": "+919958058007",
+    "location": "Faridabad, India",
+    "linkedin": null,
+    "github": null,
+    "portfolio": null,
+    "address": null,
+    "alternative_phone": null
+  },
+  "experience": [
+    {
+      "company": "M/s BONY POLYMERS PVT LTD",
+      "job_title": "Sr. Marketing Executive",
+      "location": null,
+      "start_date": "05/2024",
+      "end_date": "Current",
+      "duration": null,
+      "is_current_employment": true,
+      "employment_type": null,
+      "salary": null,
+      "responsibilities": [
+        "Responsible for yearly business of Indian Railway boggy work for projects.",
+        "Automobile projects like- Suzuki Motor, Tata Motors, Ashok Leyland & Eicher Volvo.",
+        "Coordination with concern plant at different location related to schedule V/s Delivery Plan.",
+        "Managing sales & marketing operations for industrial products.",
+        "Building healthy business relations with major clients & ensuring customer satisfaction.",
+        "Coordination with Plant/ Production for availability of Finish Goods as per monthly sales plan & maintaining Sales plan in system.",
+        "Ensure PO's in ERP & Payment follow-up with the customers.",
+        "Ensure dispatches as per customer schedule by floated update monthly stock."
+      ],
+      "technologies": [
+        "ERP software"
+      ]
+    },
+    {
+      "company": "M/s IMPERIAL AUTO INDUSTRIES PVT LTD",
+      "job_title": "Marketing Executive",
+      "location": null,
+      "start_date": "04/2022",
+      "end_date": "03/2024",
+      "duration": null,
+      "is_current_employment": false,
+      "employment_type": null,
+      "salary": null,
+      "responsibilities": [
+        "Responsible for yearly business of Alstom India, Preet Agro, Convenient Machines, Kartar tractor, Mitsubishi, Gates India, IPL Tech (Murugappa Group), MVE Electronic.",
+        "Alstom Projects - Railway & Metro Boggy work for projects like- DMRC, PUNE METRO.",
+        "Tender Filling portals of various sites like: - Gem Portal, railway / rites, defense & etc.",
+        "Electric Automobile projects like- IPL Tech (eV-TRUCK), MVE Electronic (eV vehicles), Evage motor.",
+        "Coordination with concern plant at different location related to schedule V/s Delivery Plan.",
+        "Increased customer satisfaction rate 10-20% by improving the customer service, managing marketing functions, Customer feedback for quality problems faced & solve the problems."
+      ],
+      "technologies": []
+    },
+    {
+      "company": "M/s IA VIKAS SALES",
+      "job_title": "Marketing Executive",
+      "location": null,
+      "start_date": "02/2017",
+      "end_date": "03/2022",
+      "duration": null,
+      "is_current_employment": false,
+      "employment_type": null,
+      "salary": null,
+      "responsibilities": [
+        "Responsible for after sales market (Spare Parts - SPD) yearly business of dealers, distributors, service centers (authorized & non authorized), Preet Agro, Convenient Machines, Kartar tractor & etc.",
+        "Coordination with concern suppliers related to schedule V/s Delivery Plan.",
+        "Ensure 100% inspection & testing performed at supplier end for best quality of the product before dispatch.",
+        "Increased customer satisfaction rate 30-40% by improving the customer service, on-time delivery as per customer requirement with quality of product.",
+        "Managing marketing functions, Customer feedback on quality problems & solve the problem."
+      ],
+      "technologies": []
+    }
+  ],
+  "education": [
+    {
+      "education_level": "Post Graduation",
+      "institution": "M.D.University",
+      "field_of_study": "Marketing",
+      "course_type": "MBA",
+      "passing_year": "2018",
+      "gpa": null
+    },
+    {
+      "education_level": "Graduation",
+      "institution": "M.D.University",
+      "field_of_study": "General Studies",
+      "course_type": "BBA",
+      "passing_year": "2016",
+      "gpa": null
+    },
+    {
+      "education_level": "Intermediate",
+      "institution": "Vidya Nikentan Sr.sec.school (CBSE)",
+      "field_of_study": null,
+      "course_type": null,
+      "passing_year": "2011",
+      "gpa": null
+    },
+    {
+      "education_level": "Matriculation",
+      "institution": "Vidya Niketan Sr. Sec. Sechool (CBSE)",
+      "field_of_study": null,
+      "course_type": null,
+      "passing_year": "2009",
+      "gpa": null
+    }
+  ],
+  "skills": {
+    "hard_skills": [
+      "ERP software"
+    ],
+    "soft_skills": [
+      "Excellent analytical and data inference skills",
+      "Ability to merge domain knowledge with innovative thinking producing value solutions",
+      "Excellent written, oral & interpersonal communication skills"
+    ]
+  },
+  "projects": [],
+  "certifications": [],
+  "languages": [
+    {
+      "language": "English"
+    },
+    {
+      "language": "Hindi"
+    }
+  ],
+  "awards": [],
+  "social_media": [],
+  "work_samples": [],
+  "white_papers": [],
+  "presentations": [],
+  "patents": []
+}

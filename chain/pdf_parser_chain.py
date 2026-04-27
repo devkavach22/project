@@ -9,7 +9,8 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from schemas.SpaceFix_Schema import SpaceFixSchema
+# from schemas.SpaceFix_Schema import SpaceFixSchema
+from schemas.cv_data_schema import CVSchema 
 from llm.base import get_llm
 
 
@@ -32,7 +33,7 @@ llm = get_llm()
 # 2️⃣ Output Parser (STRICT FORMAT)
 # -----------------------------------------------------
 
-parser = PydanticOutputParser(pydantic_object=SpaceFixSchema)
+parser = PydanticOutputParser(pydantic_object=CVSchema)
 
 
 # -----------------------------------------------------
@@ -40,7 +41,7 @@ parser = PydanticOutputParser(pydantic_object=SpaceFixSchema)
 # -----------------------------------------------------
 
 schema_json_safe = json.dumps(
-    SpaceFixSchema.model_json_schema(),
+    CVSchema.model_json_schema(),
     indent=2
 )
 
@@ -56,35 +57,32 @@ prompt = ChatPromptTemplate.from_messages([
     (
         "system",
         f"""
-You are an intelligent telecom CAF form extraction AI.
+You are an AI assistant that extracts structured data from resumes and CVs.
 
-Extract structured data STRICTLY following this schema:
+Extract data based STRICTLY on this schema:
 
 {schema_json_safe}
 
--------------------------
-EXTRACTION RULES
--------------------------
+---
+DIRECTIONS:
 
-1. ALWAYS return ALL fields from schema.
-2. Never remove or rename keys.
-3. Missing values → use "":
-   - strings → ""
-   - lists → []
+1. Extract data strictly following the schema structure.
+2. Missing string values → use empty string "".
+3. Missing array values → use empty list [].
 4. Output MUST be valid JSON only.
-5. No markdown, no explanation.
-6. Extract maximum possible information.
-7. Normalize dates to DD/MM/YYYY or YYYY.
-8. Addresses must be split into components properly.
-9. If text unclear → keep best possible guess.
-10. Photos should contain detected image references or [].
+5. No markdown, no explanations, no extra text.
+6. Extract as much information as possible.
+7. Split full addresses into street, city, state, pincode fields.
+8. Normalize dates to YYYY-MM-DD.
+9. If uncertain, return best possible guess.
+10. Skip sections if no information found.
+11. If section is completely missing → exclude the key or set value to None/empty.
 
 Return ONLY JSON.
 """
     ),
     ("user", "{document_text}")
 ])
-
 
 # -----------------------------------------------------
 # 5️⃣ Chain
@@ -98,7 +96,7 @@ chain = prompt | llm | parser
 # -----------------------------------------------------
 
 def get_spacefix_data(document_text: str) -> dict:
-    result: SpaceFixSchema = chain.invoke(
+    result: CVSchema = chain.invoke(
         {"document_text": document_text}
     )
 

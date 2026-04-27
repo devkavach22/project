@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,field_validator
 
 class ContactInfo(BaseModel):
     email: Optional[str] = Field(default=None, description="Email address")
@@ -10,6 +10,13 @@ class ContactInfo(BaseModel):
     portfolio: Optional[str] = Field(default=None, description="Personal website or portfolio URL")
     address: Optional[str] = Field(default=None, description="Full residential or mailing address")
     alternative_phone: Optional[str] = Field(default=None, description="Alternative contact number")
+
+    @field_validator("phone", "alternative_phone", mode="before")
+    @classmethod
+    def fix_phone(cls, v):
+        if isinstance(v, list):
+            return ", ".join(map(str, v))
+        return v
 
 
 class WorkExperience(BaseModel):
@@ -24,28 +31,44 @@ class WorkExperience(BaseModel):
     salary: Optional[str] = Field(default=None, description="Salary or compensation")
     responsibilities: List[str] = Field(default_factory=list, description="List of responsibilities or achievements")
     technologies: List[str] = Field(default_factory=list, description="Technologies or skills used")
+   
+        # ✅ ADD THIS VALIDATOR HERE
+    @field_validator("responsibilities", "technologies", mode="before")
+    @classmethod
+    def fix_list(cls, v):
+        if v is None:
+            return []
+        return v
+
 
 class Education(BaseModel):
     education_level: Optional[str] = Field(default=None, description="Education level (e.g., 10th, 12th, Graduation)")
     institution: Optional[str] = Field(default=None, description="Name of the university or institution")
-    degree: Optional[str] = Field(default=None, description="Degree obtained or Course name (e.g., Bachelor of Science)")
     field_of_study: Optional[str] = Field(default=None, description="Major, field of study or specialization")
     course_type: Optional[str] = Field(default=None, description="Type of course (e.g., Full-time, Part-time, Distance)")
-    start_date: Optional[str] = Field(default=None, description="Start date")
-    end_date: Optional[str] = Field(default=None, description="End date or expected graduation")
     passing_year: Optional[str] = Field(default=None, description="Year of passing")
     gpa: Optional[str] = Field(default=None, description="GPA or grade")
+   
+       # ✅ ADD THIS VALIDATOR HERE
+    @field_validator("passing_year", mode="before")
+    @classmethod
+    def fix_year(cls, v):
+        if isinstance(v, int):
+            return str(v)
+        return v
 
 class Project(BaseModel):
-    name: Optional[str] = Field(default=None, description="Project name")
-    tags: List[str] = Field(default_factory=list, description="Tags associated with the project")
-    description: Optional[str] = Field(default=None, description="Detailed project description")
-    client: Optional[str] = Field(default=None, description="Client for whom the project was done")
-    status: Optional[str] = Field(default=None, description="Current status of the project")
-    url: Optional[str] = Field(default=None, description="URL to the project")
-    start_date: Optional[str] = Field(default=None, description="Date when started working on the project")
-    duration_months: Optional[int] = Field(default=None, description="Duration of the project in months")
-    technologies: List[str] = Field(default_factory=list, description="Technologies used in the project")
+    title: Optional[str] = Field(default=None, description="Project name")  # ✅ FIX
+    description: Optional[str] = None
+    url: Optional[str] = None
+    technologies: List[str] = Field(default_factory=list)
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
+    @field_validator("technologies", mode="before")
+    @classmethod
+    def fix_list(cls, v):
+        return v or []
 
 class Certification(BaseModel):
     name: Optional[str] = Field(default=None, description="Name of the certification")
@@ -61,7 +84,6 @@ class Certification(BaseModel):
 
 class Language(BaseModel):
     language: Optional[str] = Field(default=None, description="Language name")
-    proficiency: Optional[str] = Field(default=None, description="Proficiency level (e.g., Native, Fluent, Beginner)")
 
 class SkillSet(BaseModel):
     hard_skills: List[str] = Field(default_factory=list, description="Technical or hard skills")
@@ -171,3 +193,20 @@ class CVSchema(BaseModel):
     white_papers: List[WhitePaper] = Field(default_factory=list, description="White papers authored")
     presentations: List[Presentation] = Field(default_factory=list, description="Presentations and talks")
     patents: List[Patent] = Field(default_factory=list, description="Patents applied or issued")
+
+        # ✅ ADD THIS VALIDATOR HERE
+    @field_validator("graduation_year", "post_graduation_year", mode="before")
+    @classmethod
+    def fix_years(cls, v):
+        if isinstance(v, int):
+            return str(v)
+        return v
+
+    @field_validator("industry", mode="before")
+    @classmethod
+    def fix_industry(cls, v):
+        if isinstance(v, list):
+            return ", ".join(map(str, v))
+        return v
+
+    

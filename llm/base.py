@@ -6,12 +6,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_llm():
-    env = os.getenv("ENV_MODE", "development").lower()
+    env = os.getenv("ENV_MODE", "production").lower()
 
     if env == "production":
         return ChatOllama(
-            model=os.getenv("OLLAMA_MODEL", "llama3.1"),
+            model=os.getenv("OLLAMA_MODEL", "glm-5.1:cloud"),
+            base_url="http://localhost:11434",
             temperature=0,
+            api_key=os.getenv("OLLAMA_API_KEY", ""),
         )
 
     return ChatOpenAI(

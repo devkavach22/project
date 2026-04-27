@@ -5,12 +5,23 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "agno>=2.6.1",
+    "docx>=0.2.4",
     "fastapi[standard]>=0.135.1",
+    "google-generativeai>=0.8.6",
+    "groq>=1.2.0",
+    "langchain-community>=0.4.1",
     "langchain-core>=1.2.18",
+    "langchain-google-genai>=4.2.1",
     "langchain-ollama>=1.0.1",
     "langchain-openai>=1.1.11",
     "openrouter>=0.9.1",
+    "pdf2image>=1.17.0",
+    "pdfminer>=20191125",
+    "pdfminer-six>=20260107",
     "pydantic>=2.12.5",
     "pypdf[image]>=6.8.0",
+    "pytesseract>=0.3.13",
+    "python-docx>=1.2.0",
     "python-dotenv>=1.2.2",
 ]
