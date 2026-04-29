@@ -301,10 +301,6 @@ def extract_pdf_text(file_path: str, use_ocr: bool = False) -> str:
         if use_ocr:
             _logger.info("Falling back to OCR for '%s'", file_path)
             txt = _ocr_pdf(file_path)
-
-    # Clean up text to save tokens
-    txt = re.sub(r'\n\s*\n', '\n', txt)  # Remove multiple empty lines
-    txt = re.sub(r' +', ' ', txt)        # Remove multiple spaces
     return txt.strip()
 
 
@@ -315,8 +311,7 @@ def _ocr_pdf(pdf_path: str) -> str:
         _logger.exception("Poppler conversion failed")
         return ""
     pages = []
-    # Limit OCR pages to save tokens
-    for i, img in enumerate(images[:10]):
+    for i, img in enumerate(images[:5]):
         try:
             pages.append(f"--- Page {i+1} ---\n{pytesseract.image_to_string(img)}")
         except Exception:
@@ -333,11 +328,7 @@ def _extract_docx_text(docx_path: str) -> str:
                 row_txt = " | ".join(c.text.strip() for c in row.cells if c.text.strip())
                 if row_txt:
                     lines.append(row_txt)
-
-        txt = "\n".join(lines).strip()
-        txt = re.sub(r'\n\s*\n', '\n', txt)
-        txt = re.sub(r' +', ' ', txt)
-        return txt
+        return "\n".join(lines).strip()
     except Exception:
         _logger.exception("python-docx failed")
         return ""
@@ -395,16 +386,14 @@ STRICT RULES:
 - Follow the exact schema and field names provided
 - Use null for missing scalar values
 - Use [] for missing list fields
-- NEVER skip any section, sentence, or information from the resume
 - Extract ALL possible data even if it appears multiple times or in different formats
 - Preserve ALL meaningful content from the resume
 - Do not summarize, shorten, or ignore any information
 - If a section exists (like projects, experience, skills), it MUST be extracted
 
 CRITICAL:
-- Do NOT skip any word, sentence, or character from the resume
-- Ensure maximum data coverage from the CV
-- Even small or incomplete sections must be extracted
+- Extract all relevant structured information from the resume.
+-Return valid JSON following schema.
 
 Output must be a single valid JSON object only.
 """.strip()
@@ -486,6 +475,7 @@ patents: [{{
 }}]
 
 IMPORTANT EXTRACTION RULES:
+
 - DO NOT skip any information from the resume
 - DO NOT skip any section such as Projects, Experience, Skills, Certifications
 - Extract ALL projects even if they are small or one-line
@@ -507,15 +497,15 @@ RESUME TEXT:
 """
 
 
-def build_agent(api_key: str, model_id: str, max_tokens: int = 4000) -> Agent:
+def build_agent(api_key: str, model_id: str) -> Agent:
     """
     Build Agno Agent.
-      - instructions  : system-level persona
+      - instructions  : system-level persona (correct kwarg, not system_prompt)
       - use_json_mode : forces the model to output valid JSON
-      - max_tokens    : capped to 4000 to avoid Groq TPM limits
+      - max_tokens    : 8192 avoids truncated JSON for large resumes
     """
     return Agent(
-        model=Groq(id=model_id, api_key=api_key, max_tokens=max_tokens),
+        model=Groq(id=model_id, api_key=api_key, max_tokens=8192),   # 2000
         instructions=INSTRUCTIONS,
         use_json_mode=True,
     )
@@ -662,37 +652,75 @@ def _parse_llm_response(response) -> dict:
 # Main pipeline
 # ============================================================
 
-def extract_resume(
-    file_path: str,
+# def extract_resume(
+#     file_path: str,
+#     api_key: str,
+#     model_id: str = "llama-3.3-70b-versatile",
+#     use_ocr: bool = False,
+# ) -> ResumeData:
+#     # 1 – extract text
+#     _logger.info("Extracting text from '%s'", file_path)
+#     text = extract_text_from_file(file_path, use_ocr=use_ocr)
+#     if not text:
+#         raise ValueError("No text could be extracted from the file.")
+#     _logger.info("Extracted %d characters", len(text))
+
+#     # 2 – send to LLM
+#     _logger.info("Sending to Agno agent (model: %s)", model_id)
+#     agent   = build_agent(api_key, model_id)
+#     prompt  = EXTRACTION_PROMPT.format(resume_text=text)
+#     response = agent.run(prompt)
+
+#     # 3 – parse response
+#     raw = _parse_llm_response(response)
+
+#     # ✅ FIX HERE
+#     raw = sanitize_llm_output(raw)
+
+#     _logger.info("LLM returned %d top-level keys", len(raw))
+
+#     # 4 – validate with Pydantic
+#     resume = ResumeData.model_validate(raw)
+#     _logger.info("Successfully parsed resume for: %s", resume.full_name)
+#     return resume
+
+
+
+def extract_resume_from_text(
+    text: str,
     api_key: str,
-    model_id: str = "llama-3.3-70b-versatile",
-    use_ocr: bool = False,
+    model_id: str = "llama-3.3-70b-versatile",  # llama-3.1-8b-instant llama-3.3-70b-versatile  groq/compound
 ) -> ResumeData:
-    # 1 – extract text
-    _logger.info("Extracting text from '%s'", file_path)
-    text = extract_text_from_file(file_path, use_ocr=use_ocr)
-    if not text:
-        raise ValueError("No text could be extracted from the file.")
-    _logger.info("Extracted %d characters", len(text))
+
+    # 1 – validate input
+    if not text or not text.strip():
+        raise ValueError("Empty resume text provided")
+
+    _logger.info("Received %d characters for processing", len(text))
 
     # 2 – send to LLM
     _logger.info("Sending to Agno agent (model: %s)", model_id)
-    agent   = build_agent(api_key, model_id)
-    prompt  = EXTRACTION_PROMPT.format(resume_text=text)
+    agent = build_agent(api_key, model_id)
+
+    prompt = EXTRACTION_PROMPT.format(resume_text=text)
+    # prompt = EXTRACTION_PROMPT.format(resume_text=text[:12000])
     response = agent.run(prompt)
 
     # 3 – parse response
     raw = _parse_llm_response(response)
 
-    # ✅ FIX HERE
+    # 4 – sanitize
     raw = sanitize_llm_output(raw)
 
     _logger.info("LLM returned %d top-level keys", len(raw))
 
-    # 4 – validate with Pydantic
+    # 5 – validate with Pydantic
     resume = ResumeData.model_validate(raw)
+
     _logger.info("Successfully parsed resume for: %s", resume.full_name)
+
     return resume
+
 
 
 # ============================================================

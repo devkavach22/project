@@ -1,30 +1,30 @@
 {
-  "full_name": "Vishnu Sharma",
-  "gender": "Male",
-  "dob": "12/25/94",
+  "full_name": "Jyoti Choubey",
+  "gender": "Female",
+  "dob": "04 March 1999",
   "religion": null,
   "marital_status": "Unmarried",
-  "current_company": "M/s BONY POLYMERS PVT LTD",
-  "current_designation": "Sr. Marketing Executive",
-  "total_experience": "8+ years",
-  "relevant_experience": null,
+  "current_company": "Cligent Aerospace",
+  "current_designation": "HR Executive",
+  "total_experience": "3.5 years",
+  "relevant_experience": "3.5 years",
   "total_companies_worked": 3,
   "current_country": "India",
-  "current_state": null,
-  "current_city": "Faridabad",
+  "current_state": "Gujarat",
+  "current_city": "Ahmedabad",
   "preferred_country": null,
   "preferred_state": null,
   "preferred_city": null,
   "hometown": null,
-  "graduation_degree": "BBA",
-  "graduation_specialization": "General Studies",
-  "graduation_year": "2014-2016",
-  "post_graduation_degree": "MBA",
-  "post_graduation_specialization": "Marketing",
-  "post_graduation_year": "2016-2018",
-  "department": "Sales Marketing & Vendor Development / Purchase (SCM) Department",
-  "role": "Business Developer / Marketing Executive",
-  "industry": "Automobile",
+  "graduation_degree": "Bachelor of Arts",
+  "graduation_specialization": "Arts & Humanities",
+  "graduation_year": "2018-2020",
+  "post_graduation_degree": "PGDCA",
+  "post_graduation_specialization": "Computer Application",
+  "post_graduation_year": "2020-2022",
+  "department": "HR",
+  "role": "HR Professional",
+  "industry": null,
   "reason_for_change": null,
   "is_permanent": null,
   "is_contractual": null,
@@ -35,125 +35,108 @@
   "expected_ctc": null,
   "notice_period": null,
   "status": null,
-  "remarks": "Looking forward to opportunities where I can utilize my skills and face challenges to secure a good position in the industry.",
-  "summary": "A dynamic professional with over 8+ years of rich experience as a Business Developer / Sales Marketing & Vendor Development / Purchase (SCM) Department. Fervent follower of the automobile Industry. Excellent analytical and data inference skills. Ability to merge domain knowledge with innovative thinking producing value solutions. Excellent written, oral & interpersonal communication skills.",
+  "remarks": "Looking for an opportunity to contribute my skills, grow professionally, and support the organization's success.",
+  "summary": "HR professional with over 3.5 years of experience in recruitment, payroll management, compliance, and employee engagement.",
   "contact_info": {
-    "email": "automobile942@gmail.com",
-    "phone": "+919958058007",
-    "location": "Faridabad, India",
+    "email": "jyotichoubey811@gmail.com",
+    "phone": "(+91) 62695 66825",
+    "location": "Ahmedabad, Gujarat, India",
     "linkedin": null,
     "github": null,
     "portfolio": null,
-    "address": null,
+    "address": "Ahmedabad, Gujarat, India",
     "alternative_phone": null
   },
   "experience": [
     {
-      "company": "M/s BONY POLYMERS PVT LTD",
-      "job_title": "Sr. Marketing Executive",
-      "location": null,
-      "start_date": "05/2024",
-      "end_date": "Current",
+      "company": "Cligent Aerospace",
+      "job_title": "HR Executive",
+      "location": "Ahmedabad, Gujarat",
+      "start_date": "July 2023",
+      "end_date": "Present",
       "duration": null,
       "is_current_employment": true,
       "employment_type": null,
       "salary": null,
       "responsibilities": [
-        "Responsible for yearly business of Indian Railway boggy work for projects.",
-        "Automobile projects like- Suzuki Motor, Tata Motors, Ashok Leyland & Eicher Volvo.",
-        "Coordination with concern plant at different location related to schedule V/s Delivery Plan.",
-        "Managing sales & marketing operations for industrial products.",
-        "Building healthy business relations with major clients & ensuring customer satisfaction.",
-        "Coordination with Plant/ Production for availability of Finish Goods as per monthly sales plan & maintaining Sales plan in system.",
-        "Ensure PO's in ERP & Payment follow-up with the customers.",
-        "Ensure dispatches as per customer schedule by floated update monthly stock."
+        "Managed end-to-end recruitment, including technical hiring, through LinkedIn, Indeed, internal databases, and college hiring, including screening, interviews, and offer rollout.",
+        "Handled HR operations including HRMS, payroll processing, and statutory compliance (PF, ESIC, TDS).",
+        "Managed onboarding, exit formalities, and full & final settlements across the employee lifecycle.",
+        "Prepared HR documents such as Offer, appointment, confirmation, experience, and relieving letters.",
+        "Maintained HR documentation, attendance, and leave records while ensuring compliance.",
+        "Managed employee lifecycle processes including onboarding, exit formalities, and full & final settlements.",
+        "Represented the company at IITs, IIMs, and tech expos to attract potential talent.",
+        "Coordinated employee engagement activities and supported performance management processes.",
+        "Assisted in policy implementation and ensured adherence to company HR policies.",
+        "Conducted HR induction and Dojo training sessions for new employees.",
+        "Managed joining documentation and maintained overtime records.",
+        "Maintained and updated employee data in HR software."
       ],
       "technologies": [
-        "ERP software"
+        "MS Office (Excel, Word, PowerPoint)"
       ]
     },
     {
-      "company": "M/s IMPERIAL AUTO INDUSTRIES PVT LTD",
-      "job_title": "Marketing Executive",
-      "location": null,
-      "start_date": "04/2022",
-      "end_date": "03/2024",
+      "company": "Marelli Motherson Automotive Lighting India",
+      "job_title": "HR Junior Executive",
+      "location": "Sanand, Gujarat",
+      "start_date": "July 2022",
+      "end_date": "June 2023",
       "duration": null,
       "is_current_employment": false,
       "employment_type": null,
       "salary": null,
       "responsibilities": [
-        "Responsible for yearly business of Alstom India, Preet Agro, Convenient Machines, Kartar tractor, Mitsubishi, Gates India, IPL Tech (Murugappa Group), MVE Electronic.",
-        "Alstom Projects - Railway & Metro Boggy work for projects like- DMRC, PUNE METRO.",
-        "Tender Filling portals of various sites like: - Gem Portal, railway / rites, defense & etc.",
-        "Electric Automobile projects like- IPL Tech (eV-TRUCK), MVE Electronic (eV vehicles), Evage motor.",
-        "Coordination with concern plant at different location related to schedule V/s Delivery Plan.",
-        "Increased customer satisfaction rate 10-20% by improving the customer service, managing marketing functions, Customer feedback for quality problems faced & solve the problems."
+        "Handled joining and exit formalities including onboarding and full & final settlement processes.",
+        "Conducted HR induction and Dojo training sessions for new joiners, including managing punching records and maintaining employee data in HRMS.",
+        "Prepared HR letters such as appointment, confirmation, and relieving letters.",
+        "Maintained attendance, overtime records.",
+        "Supported payroll processing activities including PF and ESIC compliance.",
+        "Organized and coordinated employee engagement activities.",
+        "Maintained employee records in Excel as well as hard and soft copies."
       ],
       "technologies": []
     },
     {
-      "company": "M/s IA VIKAS SALES",
-      "job_title": "Marketing Executive",
-      "location": null,
-      "start_date": "02/2017",
-      "end_date": "03/2022",
+      "company": "Tenneco Automotive India",
+      "job_title": "HR Trainee",
+      "location": "Sanand, Gujarat",
+      "start_date": "November 2021",
+      "end_date": "July 2022",
       "duration": null,
       "is_current_employment": false,
       "employment_type": null,
       "salary": null,
-      "responsibilities": [
-        "Responsible for after sales market (Spare Parts - SPD) yearly business of dealers, distributors, service centers (authorized & non authorized), Preet Agro, Convenient Machines, Kartar tractor & etc.",
-        "Coordination with concern suppliers related to schedule V/s Delivery Plan.",
-        "Ensure 100% inspection & testing performed at supplier end for best quality of the product before dispatch.",
-        "Increased customer satisfaction rate 30-40% by improving the customer service, on-time delivery as per customer requirement with quality of product.",
-        "Managing marketing functions, Customer feedback on quality problems & solve the problem."
-      ],
+      "responsibilities": [],
       "technologies": []
     }
   ],
   "education": [
     {
       "education_level": "Post Graduation",
-      "institution": "M.D.University",
-      "field_of_study": "Marketing",
-      "course_type": "MBA",
-      "passing_year": "2018",
+      "institution": "Maharaj Chhatrasal University, Bhopal",
+      "field_of_study": "Computer Application",
+      "passing_year": "2020-2022",
       "gpa": null
     },
     {
       "education_level": "Graduation",
-      "institution": "M.D.University",
-      "field_of_study": "General Studies",
-      "course_type": "BBA",
-      "passing_year": "2016",
-      "gpa": null
-    },
-    {
-      "education_level": "Intermediate",
-      "institution": "Vidya Nikentan Sr.sec.school (CBSE)",
-      "field_of_study": null,
-      "course_type": null,
-      "passing_year": "2011",
-      "gpa": null
-    },
-    {
-      "education_level": "Matriculation",
-      "institution": "Vidya Niketan Sr. Sec. Sechool (CBSE)",
-      "field_of_study": null,
-      "course_type": null,
-      "passing_year": "2009",
+      "institution": "Maharaj Chhatrasal University, Bhopal",
+      "field_of_study": "Arts & Humanities",
+      "passing_year": "2018-2020",
       "gpa": null
     }
   ],
   "skills": {
     "hard_skills": [
-      "ERP software"
+      "MS Office (Excel, Word, PowerPoint)",
+      "HRMS",
+      "Payroll Processing"
     ],
     "soft_skills": [
-      "Excellent analytical and data inference skills",
-      "Ability to merge domain knowledge with innovative thinking producing value solutions",
-      "Excellent written, oral & interpersonal communication skills"
+      "Communication",
+      "Team Management",
+      "Problem Solving"
     ]
   },
   "projects": [],
@@ -164,6 +147,9 @@
     },
     {
       "language": "Hindi"
+    },
+    {
+      "language": "Gujarati (Basic)"
     }
   ],
   "awards": [],

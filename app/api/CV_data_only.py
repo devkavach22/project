@@ -1,14 +1,11 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException
 import io
 from pypdf import PdfReader
-# from chain.CV_data_chain_new import get_cv_data_from_openrouter_model
-from chain.CV_data_chain_time import get_cv_data_from_openrouter_model
-# from chain.CV_data_chain_ollama_cloude import get_cv_data_from_openrouter_model
+from chain.CV_data_chain_new import get_cv_data_from_openrouter_model
 from schemas.cv_data_schema import CVSchema
 import os
-from rcsl_resume_chain_api import extract_resume_from_text
-# from rcsl_resume_chain import extract_resume_from_text
-# from rcsl_resume_graph_api import extract_resume_from_text
+# from rcsl_resume_chain_api import extract_resume_from_text
+
 
 router = APIRouter()
 

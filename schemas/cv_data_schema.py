@@ -45,7 +45,7 @@ class Education(BaseModel):
     education_level: Optional[str] = Field(default=None, description="Education level (e.g., 10th, 12th, Graduation)")
     institution: Optional[str] = Field(default=None, description="Name of the university or institution")
     field_of_study: Optional[str] = Field(default=None, description="Major, field of study or specialization")
-    course_type: Optional[str] = Field(default=None, description="Type of course (e.g., Full-time, Part-time, Distance)")
+    #course_type: Optional[str] = Field(default=None, description="Type of course (e.g., Full-time, Part-time, Distance)")
     passing_year: Optional[str] = Field(default=None, description="Year of passing")
     gpa: Optional[str] = Field(default=None, description="GPA or grade")
    
@@ -81,6 +81,13 @@ class Certification(BaseModel):
     end_year: Optional[str] = Field(default=None, description="Year of certification completion")
     does_not_expire: Optional[bool] = Field(default=None, description="Whether this certification does not expire")
     date_obtained: Optional[str] = Field(default=None, description="Date the certification was obtained")
+    
+    @field_validator("start_year", "end_year", mode="before")
+    @classmethod
+    def fix_years(cls, v):
+        if isinstance(v, int):
+            return str(v)
+        return v
 
 class Language(BaseModel):
     language: Optional[str] = Field(default=None, description="Language name")
