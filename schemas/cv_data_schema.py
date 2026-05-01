@@ -72,17 +72,11 @@ class Project(BaseModel):
 
 class Certification(BaseModel):
     name: Optional[str] = Field(default=None, description="Name of the certification")
-    issuer: Optional[str] = Field(default=None, description="Issuing organization")
-    completion_id: Optional[str] = Field(default=None, description="Certification completion ID")
     url: Optional[str] = Field(default=None, description="URL to the certification")
-    start_month: Optional[str] = Field(default=None, description="Month of certification start")
-    start_year: Optional[str] = Field(default=None, description="Year of certification start")
-    end_month: Optional[str] = Field(default=None, description="Month of certification completion")
-    end_year: Optional[str] = Field(default=None, description="Year of certification completion")
     does_not_expire: Optional[bool] = Field(default=None, description="Whether this certification does not expire")
     date_obtained: Optional[str] = Field(default=None, description="Date the certification was obtained")
     
-    @field_validator("start_year", "end_year", mode="before")
+    @field_validator("date_obtained", mode="before")
     @classmethod
     def fix_years(cls, v):
         if isinstance(v, int):
@@ -140,7 +134,7 @@ class Patent(BaseModel):
 class CVSchema(BaseModel):
     full_name: Optional[str] = Field(default=None, description="Full name of the candidate")
     gender: Optional[str] = Field(default=None, description="Gender of the candidate")
-    dob: Optional[str] = Field(default=None, description="Date of birth of the candidate")
+    date_of_birth: Optional[str] = Field(default=None, description="Date of birth of the candidate")
     religion: Optional[str] = Field(default=None, description="Religion of the candidate")
     marital_status: Optional[str] = Field(default=None, description="Marital status of the candidate")
     

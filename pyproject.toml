@@ -16,6 +16,7 @@ dependencies = [
     "langchain-groq>=1.1.2",
     "langchain-ollama>=1.0.1",
     "langchain-openai>=1.1.11",
+    "langchain-openrouter>=0.2.1",
     "langgraph>=1.1.10",
     "openrouter>=0.9.1",
     "pdf2image>=1.17.0",
