@@ -1,34 +1,31 @@
-    
 ARG PYTHON_VERSION=3.14.3
-FROM python:${PYTHON_VERSION}-slim as base
+FROM python:${PYTHON_VERSION}-slim
 
-# Prevents Python from writing pyc files.
+# Environment settings
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy dependency files first
+# Install system deps (optional but recommended)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy dependency files first (for caching)
 COPY pyproject.toml uv.lock ./
 
-# install package manager 
-RUN pip install uv
+# Install dependencies (IMPORTANT: done at build time)
+RUN uv sync --frozen
 
-
-# Copy directory
+# Copy rest of the code
 COPY . .
 
-# Install dependencies
-CMD uv sync
-
-# Expose Port
+# Expose port
 EXPOSE 8888
 
-
-#  Run command 
-CMD ["uv","run","fastapi","run","main.py","--port","8888"]
+# Run app
+CMD ["uv", "run", "fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8888"]
 
 
