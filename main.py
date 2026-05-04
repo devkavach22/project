@@ -6,7 +6,7 @@ from app.routes import api_router
 
 # Add the project root to sys.path so that 'schemas' can be found when this file is run directly
 
-app = FastAPI()
+app = FastAPI(title="Data Parsing Project")
 
 origins = [
     "http://localhost:3000",

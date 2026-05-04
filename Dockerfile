@@ -11,14 +11,18 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# Copy dependency files first
+COPY pyproject.toml uv.lock ./
+
 # install package manager 
 RUN pip install uv
 
-# Install dependencies
-CMD uv sync
 
 # Copy directory
 COPY . .
+
+# Install dependencies
+CMD uv sync
 
 # Expose Port
 EXPOSE 8888

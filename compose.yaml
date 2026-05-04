@@ -3,10 +3,13 @@ version: "3.9"
 services:
   fastapi-app:
     build: .
-    container_name: fastapi_app
+    image: data_parsing_project
     ports:
       - "8888:8888"
     volumes:
-      - /etc/python-env/parsing_project:/app/.env
+      - /etc/python-env/data_parsing_project:/app/.env
+      # - "C:/Users/deepak.p/Downloads/env.download:/app/.env"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
 
