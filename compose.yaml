@@ -1,4 +1,4 @@
-version: "3.9"
+# version: "3.9"
 
 services:
   fastapi-app:
@@ -10,6 +10,6 @@ services:
       - /etc/python-env/data_parsing_project:/app/.env
       # - "C:/Users/deepak.p/Downloads/env.download:/app/.env"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "host.docker.internal:192.168.11.53"
     restart: unless-stopped
 
