@@ -44,32 +44,30 @@ class ResumeState(TypedDict):
 # LLM
 # ============================================================
 
-def get_llm():
-    return ChatOpenRouter(
-        model="openai/gpt-oss-20b:free",  
-        # other good options:
-        # "meta-llama/llama-3.1-70b-instruct"
-        # "anthropic/claude-3.5-sonnet"
-        # "mistralai/mistral-large"
+# def get_llm():
+#     return ChatOpenRouter(
+#         model="openai/gpt-oss-20b:free",  
+#         # other good options:
+#         # "meta-llama/llama-3.1-70b-instruct"
+#         # "anthropic/claude-3.5-sonnet"
+#         # "mistralai/mistral-large"
 
-        temperature=0,
-        max_tokens=4096,
-        max_retries=2,
+#         temperature=0,
+#         max_tokens=4096,
+#         max_retries=2,
 
-        api_key=os.getenv("OPENROUTER_API_KEY"),
-
-        # optional but recommended (OpenRouter ranking)
-    )
+#         api_key=os.getenv("OPENROUTER_API_KEY"),
+#     )
 
     
 
-# def get_llm():
-#     return ChatOllama(
-#         model="gpt-oss:20b-cloud",  # or "llama3.1:8b"  or llama3.1:70b or "gpt-oss:20b-cloud"  or "gpt-oss:120b-cloud"
-#         temperature=0,
-#         num_ctx=8192,
-#         base_url=os.getenv("OLLAMA_API_BASE_URL"),  # remove if using local
-#     )
+def get_llm():
+    return ChatOllama(
+        model="gpt-oss:20b-cloud",  # or "llama3.1:8b"  or llama3.1:70b or "gpt-oss:20b-cloud"  or "gpt-oss:120b-cloud"
+        temperature=0,
+        num_ctx=8192,
+        base_url=os.getenv("OLLAMA_API_BASE_URL"),  # remove if using local
+    )
 
 # def get_llm():
 #     return ChatGroq(
