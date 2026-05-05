@@ -4,12 +4,13 @@ services:
   fastapi-app:
     build: .
     image: data_parsing_project
-    ports:
-      - "8888:8888"
+    network_mode: "host"
+    # ports:
+    #   - "8888:8888" 
     volumes:
       - /etc/python-env/data_parsing_project:/app/.env
       # - "C:/Users/deepak.p/Downloads/env.download:/app/.env"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
     restart: unless-stopped
 

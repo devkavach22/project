@@ -46,7 +46,7 @@ class ResumeState(TypedDict):
 
 def get_llm():
     return ChatOpenRouter(
-        model="meta-llama/llama-3.1-8b-instruct",  
+        model="openai/gpt-oss-20b:free",  
         # other good options:
         # "meta-llama/llama-3.1-70b-instruct"
         # "anthropic/claude-3.5-sonnet"
@@ -67,13 +67,13 @@ def get_llm():
 
     
 
-def get_llm():
-    return ChatOllama(
-        model="gpt-oss:20b-cloud",  # or "llama3.1:8b"  or llama3.1:70b or "gpt-oss:20b-cloud"  or "gpt-oss:120b-cloud"
-        temperature=0,
-        num_ctx=8192,
-        base_url=os.getenv("OLLAMA_API_BASE_URL"),  # remove if using local
-    )
+# def get_llm():
+#     return ChatOllama(
+#         model="gpt-oss:20b-cloud",  # or "llama3.1:8b"  or llama3.1:70b or "gpt-oss:20b-cloud"  or "gpt-oss:120b-cloud"
+#         temperature=0,
+#         num_ctx=8192,
+#         base_url=os.getenv("OLLAMA_API_BASE_URL"),  # remove if using local
+#     )
 
 # def get_llm():
 #     return ChatGroq(

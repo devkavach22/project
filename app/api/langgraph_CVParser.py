@@ -13,7 +13,7 @@ router = APIRouter()
 import time
 from fastapi import UploadFile, File, HTTPException
 
-@router.post("/cv-parser-langgraph")
+@router.post("/cv-parser-ollama")
 async def cv_parser(file: UploadFile = File(...)):
     try:
         content = await file.read()
