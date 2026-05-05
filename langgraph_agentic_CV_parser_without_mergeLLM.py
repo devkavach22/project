@@ -59,10 +59,6 @@ def get_llm():
         api_key=os.getenv("OPENROUTER_API_KEY"),
 
         # optional but recommended (OpenRouter ranking)
-        default_headers={
-            "HTTP-Referer": "http://localhost",
-            "X-Title": "Resume Parser"
-        }
     )
 
     
