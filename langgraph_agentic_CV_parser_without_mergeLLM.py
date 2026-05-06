@@ -187,12 +187,48 @@ TEXT:
 # ============================================================
 def basic_info_node(state: ResumeState):
     llm = get_llm()
-    text = state["raw_text"][:4000]
+    text = state["raw_text"][:6000]
 
     prompt = f"""
-You are a resume parser.
+You are an expert resume parser. Extract candidate information into the provided JSON schema.
 
-DO NOT skip any information present in the text.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Follow the Field Definitions strictly to avoid mixing up data.
+- Return ONLY valid JSON.
+
+FIELD DEFINITIONS:
+- "full_name": Candidate's complete name.
+- "gender": Male, Female, Other, etc.
+- "date_of_birth": Also look for "DOB", "birth date", "born", etc.
+- "religion": Candidate's religion if mentioned.
+- "marital_status": Single, Married, etc.
+- "current_company": The most recent or current employer.
+- "current_designation": Job title at the current/latest company.
+- "total_experience": Total years/months of work experience.
+- "relevant_experience": Experience specifically relevant to their primary field.
+- "total_companies_worked": Integer count of total distinct employers.
+- "current_city", "current_state", "current_country": Where the candidate currently resides.
+- "preferred_city", "preferred_state", "preferred_country": Where the candidate wants to work.
+- "hometown": Candidate's native place or hometown.
+- "graduation_degree": Undergraduate/Bachelor's degrees (e.g., B.Tech, B.Sc, B.A, B.Com, BBA, BCA, BE).
+- "graduation_specialization": Major/Branch for graduation (e.g., Computer Science).
+- "graduation_year": Year of passing graduation.
+- "post_graduation_degree": Master's/Postgraduate degrees (e.g., M.Tech, M.Sc, M.A, M.Com, MBA, MCA, ME).
+- "post_graduation_specialization": Major/Branch for post-graduation.
+- "post_graduation_year": Year of passing post-graduation.
+- "department": The department the candidate belongs to or wants to join.
+- "role": The primary job role the candidate is seeking.
+- "industry": The industry sector (e.g., IT, Finance, Healthcare).
+- "reason_for_change": Why the candidate is looking for a new job.
+- "is_permanent", "is_contractual", "is_full_time", "is_part_time": Booleans (true/false) indicating job type preference.
+- "preferred_shift": E.g., Day, Night, Flexible.
+- "preferred_work_locations": List of strings for desired work locations.
+- "expected_ctc": Expected salary.
+- "notice_period": E.g., "30 days", "Immediate".
+- "status": Job search status if mentioned.
+- "remarks": Any other notable information.
+- "summary": The professional summary, objective, or profile summary section.
 
 Return ONLY valid JSON.
 
