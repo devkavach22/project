@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field,field_validator
+from pydantic import ConfigDict  # for handle int to str conv
 
 class ContactInfo(BaseModel):
     email: Optional[str] = Field(default=None, description="Email address")
@@ -101,6 +102,8 @@ class SocialMedia(BaseModel):
     description: Optional[str] = Field(default=None, description="Profile description or bio")
 
 class WorkSample(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     title: Optional[str] = Field(default=None, description="Work title")
     url: Optional[str] = Field(default=None, description="Link to the work sample")
     start_date: Optional[str] = Field(default=None, description="Duration from")
@@ -109,6 +112,8 @@ class WorkSample(BaseModel):
     total_duration: Optional[str] = Field(default=None, description="Work sample total duration")
 
 class WhitePaper(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+    
     title: Optional[str] = Field(default=None, description="White paper title")
     url: Optional[str] = Field(default=None, description="URL to the white paper")
     start_date: Optional[str] = Field(default=None, description="Duration from date")
@@ -181,6 +186,7 @@ class CVSchema(BaseModel):
     remarks: Optional[str] = Field(default=None, description="Additional remarks or notes")
 
     summary: Optional[str] = Field(default=None, description="Professional summary or objective")
+    keywords: List[str] = Field(default_factory=list, description="List of keywords")
     contact_info: Optional[ContactInfo] = Field(default=None, description="Contact details")
     experience: List[WorkExperience] = Field(default_factory=list, description="Work experience history")
     education: List[Education] = Field(default_factory=list, description="Educational background")

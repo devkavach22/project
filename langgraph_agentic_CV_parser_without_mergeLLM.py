@@ -229,6 +229,10 @@ FIELD DEFINITIONS:
 - "status": Job search status if mentioned.
 - "remarks": Any other notable information.
 - "summary": The professional summary, objective, or profile summary section.
+- "keywords": Important resume keywords, technologies, roles,
+  tools, skills, frameworks, domains, certifications,
+  and business terms present in the resume.
+  Return as array of strings.
 
 Return ONLY valid JSON.
 
@@ -270,7 +274,8 @@ Return ONLY valid JSON.
  "notice_period": "",
  "status": "",
  "remarks": "",
- "summary": ""
+ "summary": "",
+ "keywords": []
 }}
 
 TEXT:
@@ -645,6 +650,9 @@ def merge_node(state: ResumeState):
         # ===== SUMMARY =====
         "summary": data.get("summary"),
 
+        # ===== KEYWORDS =====
+        "keywords": data.get("keywords") or [],
+
         # ===== CONTACT =====
         "contact_info": data.get("contact_info") or {
             "email": None,
@@ -688,7 +696,7 @@ def sanitize(data: dict):
         "experience", "education", "projects", "certifications",
         "languages", "awards", "social_media", "work_samples",
         "white_papers", "presentations", "patents",
-        "preferred_work_locations"
+        "preferred_work_locations",    "keywords"
     ]
 
     for key in list_fields:
