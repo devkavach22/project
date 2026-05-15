@@ -2,6 +2,7 @@ from typing import TypedDict, Dict, Any, Annotated
 import json
 import re
 import os
+import operator
 
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
@@ -38,6 +39,7 @@ class ResumeState(TypedDict):
     sections: Dict[str, str]
     extracted: Annotated[Dict[str, Any], merge_dicts]
     final: Dict[str, Any]
+    llm_call_count: Annotated[int, operator.add]
 
 
 # ============================================================
@@ -81,6 +83,7 @@ def get_llm():
             base_url=os.getenv("OLLAMA_API_BASE_URL"),  # remove if using local
         )
 
+LLM = get_llm()
 
 # ============================================================
 # JSON PARSER
@@ -150,14 +153,15 @@ def split_node(state: ResumeState):
 # ============================================================
 # CONTACT NODE
 # ============================================================
-def contact_node(state: ResumeState):
-    llm = get_llm()
+async def contact_node(state: ResumeState):
     section = state["sections"]["contact"] + state["raw_text"][:3000]
 
     prompt = f"""
-DO NOT skip any information present in the text.
+You are an expert resume parser. Extract candidate contact information into the provided JSON schema.
 
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Return ONLY valid JSON.
 
 {{
  "contact_info": {{
@@ -176,17 +180,16 @@ TEXT:
 {section}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     print("CONTACT RAW:", res.content)
 
-    return {"extracted": safe_parse(res.content)}
+    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
 
 
 # ============================================================
 # BASIC INFO NODE
 # ============================================================
-def basic_info_node(state: ResumeState):
-    llm = get_llm()
+async def basic_info_node(state: ResumeState):
     text = state["raw_text"][:6000]
 
     prompt = f"""
@@ -282,32 +285,29 @@ TEXT:
 {text}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     print("BASIC RAW:", res.content)
 
-    return {"extracted": safe_parse(res.content)}
+    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
 
 
 # ============================================================
 # EXPERIENCE NODE (FIXED)
 # ============================================================
-def experience_node(state: ResumeState):
-    llm = get_llm()
+async def experience_node(state: ResumeState):
 
     section = (state["sections"]["experience"] + state["raw_text"])[:5000]
 
     prompt = f"""
-You are a highly accurate resume parser.
+You are an expert resume parser. Extract candidate experience information into the provided JSON schema.
 
-DO NOT skip any information present in the text.
-
-STRICT RULES:
-- NEVER return empty experience if any work-related text exists
-- Extract ALL roles even if formatting is messy
-- Infer company, role, and dates
-- Split multiple roles properly
-
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- NEVER return empty experience if any work-related text exists.
+- Extract ALL roles even if formatting is messy.
+- Infer company, role, and dates.
+- Split multiple roles properly.
+- Return ONLY valid JSON.
 
 {{
  "experience": [
@@ -327,8 +327,9 @@ TEXT:
 {section}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     parsed = safe_parse(res.content)
+    calls = 1
 
     print("EXP RAW:", parsed)
 
@@ -337,11 +338,12 @@ TEXT:
         print("⚠️ fallback triggered")
 
         fallback_prompt = f"""
-DO NOT skip any information.
+You are an expert resume parser. Extract candidate experience information into the provided JSON schema.
 
-Extract ALL experience from this resume.
-
-Return JSON only.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information.
+- Extract ALL experience from this resume.
+- Return ONLY valid JSON.
 
 {{
  "experience": [
@@ -358,25 +360,27 @@ TEXT:
 {state["raw_text"][:6000]}
 """
 
-        res2 = llm.invoke(fallback_prompt)
+        res2 = await LLM.ainvoke(fallback_prompt)
         parsed = safe_parse(res2.content)
+        calls += 1
 
         print("EXP FALLBACK:", parsed)
 
-    return {"extracted": parsed}
+    return {"extracted": parsed, "llm_call_count": calls}
 
 
 # ============================================================
 # EDUCATION NODE
 # ============================================================
-def education_node(state: ResumeState):
-    llm = get_llm()
+async def education_node(state: ResumeState):
     section = state["sections"]["education"]
 
     prompt = f"""
-DO NOT skip any information present in the text.
+You are an expert resume parser. Extract candidate education information into the provided JSON schema.
 
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Return ONLY valid JSON.
 
 {{
  "education": [
@@ -394,23 +398,24 @@ TEXT:
 {section}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     print("EDU RAW:", res.content)
 
-    return {"extracted": safe_parse(res.content)}
+    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
 
 
 # ============================================================
 # SKILLS NODE
 # ============================================================
-def skills_node(state: ResumeState):
-    llm = get_llm()
+async def skills_node(state: ResumeState):
     section = state["sections"]["skills"]
 
     prompt = f"""
-DO NOT skip any information present in the text.
+You are an expert resume parser. Extract candidate skills into the provided JSON schema.
 
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Return ONLY valid JSON.
 
 {{
  "skills": {{
@@ -423,30 +428,27 @@ TEXT:
 {section}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     print("SKILLS RAW:", res.content)
 
-    return {"extracted": safe_parse(res.content)}
+    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
 
 
 # ============================================================
 # PROJECT NODE
 # ============================================================
-def project_node(state: ResumeState):
-    llm = get_llm()
+async def project_node(state: ResumeState):
     section = state["sections"]["projects"] + state["raw_text"]
 
     prompt = f"""
-You are a highly accurate resume parser.
+You are an expert resume parser. Extract candidate projects into the provided JSON schema.
 
-DO NOT skip any information present in the text.
-
-STRICT RULES:
-- Extract ALL projects even if poorly formatted
-- NEVER return empty if any project exists
-- Infer missing fields where possible
-
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Extract ALL projects even if poorly formatted.
+- NEVER return empty if any project exists.
+- Infer missing fields where possible.
+- Return ONLY valid JSON.
 
 {{
  "projects": [
@@ -465,17 +467,21 @@ TEXT:
 {section[:5000]}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     parsed = safe_parse(res.content)
+    calls = 1
 
     print("PROJECT RAW:", parsed)
 
     # ✅ fallback if empty
     if not parsed.get("projects"):
         fallback_prompt = f"""
-Extract ALL projects from this resume.
+You are an expert resume parser. Extract candidate projects into the provided JSON schema.
 
-Return JSON only.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information.
+- Extract ALL projects from this resume.
+- Return ONLY valid JSON.
 
 {{
  "projects": [
@@ -489,32 +495,30 @@ Return JSON only.
 TEXT:
 {state["raw_text"][:6000]}
 """
-        res2 = llm.invoke(fallback_prompt)
+        res2 = await LLM.ainvoke(fallback_prompt)
         parsed = safe_parse(res2.content)
+        calls += 1
 
         print("PROJECT FALLBACK:", parsed)
 
-    return {"extracted": parsed}
+    return {"extracted": parsed, "llm_call_count": calls}
 
 
 # ============================================================
 # ertification Node
 # ============================================================
-def certification_node(state: ResumeState):
-    llm = get_llm()
+async def certification_node(state: ResumeState):
     section = state["sections"]["certifications"] + state["raw_text"]
 
     prompt = f"""
-You are a highly accurate resume parser.
+You are an expert resume parser. Extract candidate certifications into the provided JSON schema.
 
-DO NOT skip any information present in the text.
-
-STRICT RULES:
-- Extract ALL certifications even if scattered
-- Infer missing fields if possible
-- NEVER return empty if certification exists
-
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Extract ALL certifications even if scattered.
+- Infer missing fields if possible.
+- NEVER return empty if certification exists.
+- Return ONLY valid JSON.
 
 {{
  "certifications": [
@@ -531,26 +535,25 @@ TEXT:
 {section[:5000]}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     print("CERT RAW:", res.content)
 
-    return {"extracted": safe_parse(res.content)}
+    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
 
 
 # ============================================================
 # OTHERS NODE (Languages, Awards, Social Media, etc.)
 # ============================================================
-def others_node(state: ResumeState):
-    llm = get_llm()
+async def others_node(state: ResumeState):
     section = state["sections"]["others"] + state["raw_text"][:4000]
 
     prompt = f"""
-You are a highly accurate resume parser.
+You are an expert resume parser. Extract candidate's other information into the provided JSON schema.
 
-DO NOT skip any information present in the text.
-Extract information into the following categories if they exist.
-
-Return ONLY JSON.
+STRICT INSTRUCTIONS:
+- DO NOT skip any information present in the text.
+- Extract information into the following categories if they exist.
+- Return ONLY valid JSON.
 
 {{
  "languages": [
@@ -580,10 +583,10 @@ TEXT:
 {section}
 """
 
-    res = llm.invoke(prompt)
+    res = await LLM.ainvoke(prompt)
     print("OTHERS RAW:", res.content)
 
-    return {"extracted": safe_parse(res.content)}
+    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
 
 
 # ============================================================
@@ -768,12 +771,15 @@ graph = builder.compile()
 # ============================================================
 # MAIN
 # ============================================================
-def extract_resume_agentic(text: str):
-    result = graph.invoke({
+async def extract_resume_agentic(text: str):
+    result = await graph.ainvoke({
         "raw_text": text,
         "sections": {},
         "extracted": {},
-        "final": {}
+        "final": {},
+        "llm_call_count": 0
     })
+
+    print(f"🔥 TOTAL LLM CALLS MADE BY AGENT: {result.get('llm_call_count', 0)} 🔥")
 
     return result["final"]

@@ -1,70 +1,121 @@
-# pdf_data.py
-
-from pathlib import Path
-from typing import Union, Optional
-
-try:
-    from pypdf import PdfReader
-except ImportError:
-    PdfReader = None
+import io
+from typing import List
+import fitz  # PyMuPDF
+import easyocr
 
 
-def extract_text_from_pdf(path: Union[str, Path]) -> str:
-    """Extract text from a PDF file."""
-    if PdfReader is None:
-        raise RuntimeError(
-            "pypdf not installed; install it with: pip install pypdf"
+class PDFTextExtractor:
+
+    def __init__(self):
+        # Lazy loading for OCR
+        # OCR model loads only when needed
+        self.reader = None
+
+    # =========================================================
+    # LOAD OCR MODEL ONLY WHEN REQUIRED
+    # =========================================================
+    def get_reader(self):
+        if self.reader is None:
+            print("[OCR] Loading EasyOCR model...")
+            self.reader = easyocr.Reader(
+                ["en"],
+                gpu=False,
+                download_enabled=False
+            )
+        return self.reader
+
+    async def extract_pdf_text(self, file_bytes: bytes) -> str:
+        """
+        Extract text from PDF.
+        Supports:
+        1. Normal selectable PDF text
+        2. OCR from images inside PDF
+        """
+
+        try:
+            # =========================
+            # Extract normal PDF text
+            # =========================
+            text = ""
+
+            with fitz.open(stream=io.BytesIO(file_bytes), filetype="pdf") as pdf:
+
+                for page in pdf:
+                    text += page.get_text("text")
+
+            result_text = text.replace("\n", " ").strip()
+
+            # 🚀 OPTIMIZATION: Skip OCR if PDF already contains selectable text
+            # Resumes usually have > 100 chars if they are not scanned images.
+            if len(result_text) > 100:
+                return result_text
+
+            # =========================
+            # Extract images from PDF
+            # =========================
+            images = self._extract_images_from_pdf(file_bytes)
+
+            # =========================
+            # OCR on extracted images
+            # =========================
+            if images:
+                image_text = self._extract_text_from_images(images)
+                result_text += " " + image_text
+
+            return result_text.strip()
+
+        except Exception as e:
+            return f"PDF extraction failed: {str(e)}"
+
+    # =====================================================
+    # Extract images from PDF
+    # =====================================================
+    def _extract_images_from_pdf(self, pdf_bytes: bytes) -> List[bytes]:
+
+        images = []
+
+        pdf_document = fitz.open(
+            stream=io.BytesIO(pdf_bytes),
+            filetype="pdf"
         )
 
-    reader = PdfReader(path)
-    text_parts = []
-    for page in reader.pages:
-        page_text = page.extract_text()
-        if page_text:
-            text_parts.append(page_text.strip())
-    return "\n".join(text_parts)
+        for page_num in range(len(pdf_document)):
 
+            page = pdf_document.load_page(page_num)
 
-def extract_text_from_txt(path: Union[str, Path]) -> str:
-    """Extract text from a plain text file."""
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
+            for img in page.get_images(full=True):
 
+                xref = img[0]
 
-def extract_text(path: Union[str, Path]) -> str:
-    """
-    Generic data‑extraction pipeline that reads text from:
-      - PDF files (.pdf)
-      - Plain text files (.txt)
+                base_image = pdf_document.extract_image(xref)
 
-    Returns:
-      A single string containing all extracted text.
-    """
-    path = Path(path)
+                image_bytes = base_image["image"]
 
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+                images.append(image_bytes)
 
-    suffix = path.suffix.lower()
+        pdf_document.close()
 
-    if suffix == ".pdf":
-        return extract_text_from_pdf(path)
-    elif suffix in (".txt", ".text"):
-        return extract_text_from_txt(path)
-    else:
-        raise ValueError(
-            f"Unsupported file type '{suffix}'. "
-            "Supported types: .pdf, .txt"
-        )
+        return images
 
+    # =====================================================
+    # OCR from images
+    # =====================================================
+    def _extract_text_from_images(
+        self,
+        image_bytes_list: List[bytes]
+    ) -> str:
 
-# Example usage (you can remove this if you only want the module)
-if __name__ == "__main__":
-    # Example: pass any file path here
-    file_path = "example.pdf"  # or "example.txt"
-    try:
-        text = extract_text(file_path)
-        print("Extracted text:")
-        print(text)
-    except Exception as e:
-        print(f"Error: {e}")
+        all_text = []
+        reader = self.get_reader()
+
+        for img_bytes in image_bytes_list:
+
+            result = reader.readtext(
+                img_bytes,
+                detail=0,
+                paragraph=True
+            )
+
+            all_text.append(" ".join(result))
+
+        return " ".join(all_text)
