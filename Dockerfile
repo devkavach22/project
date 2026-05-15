@@ -1,31 +1,64 @@
-ARG PYTHON_VERSION=3.14.3
+ARG PYTHON_VERSION=3.11
+
 FROM python:${PYTHON_VERSION}-slim
 
-# Environment settings
+# -----------------------------
+# Python settings
+# -----------------------------
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install system deps (optional but recommended)
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# -----------------------------
+# System dependencies
+# -----------------------------
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    g++ \
+    build-essential \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgl1 \
+    libglib2.0-0 \
+    libxcb1 \
+    libxcb-xinerama0 \
+    libxkbcommon-x11-0 \
+    poppler-utils \
+    tesseract-ocr \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
+# -----------------------------
 # Install uv
+# -----------------------------
 RUN pip install --no-cache-dir uv
 
-# Copy dependency files first (for caching)
+# -----------------------------
+# Copy dependency files
+# -----------------------------
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies (IMPORTANT: done at build time)
+# -----------------------------
+# Install Python dependencies
+# -----------------------------
 RUN uv sync --frozen
 
-# Copy rest of the code
+# -----------------------------
+# Copy app
+# -----------------------------
 COPY . .
 
-# Expose port
+# -----------------------------
+# Expose FastAPI port
+# -----------------------------
 EXPOSE 8888
 
-# Run app
+# -----------------------------
+# Start app
+# -----------------------------
 CMD ["uv", "run", "fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8888"]
-
-
