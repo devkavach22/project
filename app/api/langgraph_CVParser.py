@@ -12,7 +12,8 @@ import asyncio
 from langgraph_agentic_CV_parser_without_mergeLLM import extract_resume_agentic
 
 # from data_pipeline.file_data_extraction import FileDataExtractor
-from data_pipeline.pdf_data import PDFTextExtractor
+# from data_pipeline.pdf_data import PDFTextExtractor
+from data_pipeline.pdf_data_pytesseract import PDFTextExtractor
 
 router = APIRouter()
 
@@ -34,33 +35,30 @@ async def cv_parser(file: UploadFile = File(...)):
         filename = file.filename.lower()
 
         if filename.endswith(".pdf"):
-            # ⏱ Start timing
-            start_time = time.time()
+    
+            extraction_result = await pdf_extractor.extract_pdf_text(content)
 
-            cv_text = await pdf_extractor.extract_pdf_text(content)
-            mid_time = time.time()
+            cv_text = extraction_result["text"]
 
+            print(
+                f"[PDF EXTRACTION] Normal PDF Time: "
+                f"{extraction_result['normal_pdf_time']} sec"
+            )
 
-            # cv_text_1 = extract_text_from_pdf(content)
-            # mid_time = time.time()
+            print(
+                f"[PDF EXTRACTION] OCR Time: "
+                f"{extraction_result['ocr_time']} sec"
+            )
 
+            print(
+                f"[PDF EXTRACTION] Total Time: "
+                f"{extraction_result['total_time']} sec"
+            )
 
-            # cv_text_2 = await extractor.extract_data(
-            #     file_bytes=content,
-            #     ext=".pdf"
-            # )
-
-            # print("cv_text_2 pdf all data:",cv_text_2,type(cv_text_2))
-
-            end_time = time.time()
-      
-            # cv_text = cv_text_1 + cv_text_2
-            # cv_text = cv_text_1
-
-            # 🖨️ Print timings
-            print(f"[PDF TEXT EXTRACTION] Normal PDF time: {mid_time - start_time:.2f} sec")
-            print(f"[PDF TEXT EXTRACTION] OCR time: {end_time - mid_time:.2f} sec")
-            print(f"[PDF TEXT EXTRACTION] Total extraction time: {end_time - start_time:.2f} sec")
+            print(
+                f"[PDF EXTRACTION] OCR Used: "
+                f"{extraction_result['ocr_used']}"
+            )
  
 
         else:

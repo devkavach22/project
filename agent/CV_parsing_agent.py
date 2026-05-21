@@ -1,30 +1,52 @@
-from typing import TypedDict, Dict, Any, Annotated
-import json
-import re
+from typing import TypedDict, Dict, Any, Annotated, List
 import os
 import operator
 
+from pydantic import BaseModel, Field
+
 from langgraph.graph import StateGraph, END
+
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain_ollama import ChatOllama
 from langchain_openrouter import ChatOpenRouter
 
-from schemas.cv_data_schema import CVSchema as ResumeData
+from schemas.cv_data_schema import (
+    CVSchema as ResumeData,
+    WorkExperience,
+    Project,
+    Education,
+    SkillSet,
+    Certification,
+    Language,
+    Award,
+    SocialMedia,
+    WorkSample,
+    WhitePaper,
+    Presentation,
+    Patent
+)
 
 
 # ============================================================
 # 🔥 DEEP MERGE REDUCER
 # ============================================================
 def merge_dicts(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+
     a = a or {}
     b = b or {}
 
     result = dict(a)
 
     for k, v in b.items():
-        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+
+        if (
+            k in result
+            and isinstance(result[k], dict)
+            and isinstance(v, dict)
+        ):
             result[k] = merge_dicts(result[k], v)
+
         else:
             result[k] = v
 
@@ -45,65 +67,81 @@ class ResumeState(TypedDict):
 # ============================================================
 # LLM
 # ============================================================
-
 def get_llm():
+
     provider = os.getenv("LLM_PROVIDER_NAME", "ollama").lower()
 
     if provider == "openrouter":
-        return ChatOpenAI( # Using ChatOpenAI for OpenRouter compatible API
-            model="openai/gpt-4o-mini", # or "openai/gpt-oss-20b:free"
+
+        return ChatOpenAI(
+            model="openai/gpt-4o-mini",
             temperature=0,
             max_tokens=4096,
             max_retries=2,
             api_key=os.getenv("OPENROUTER_API_KEY"),
             base_url="https://openrouter.ai/api/v1",
         )
-    
+
     elif provider == "groq":
+
         return ChatGroq(
-            model="openai/gpt-oss-120b",  # or "mixtral-8x7b-32768"  # llama3-70b-8192
+            model="openai/gpt-oss-120b",
             temperature=0,
             max_tokens=1500,
             groq_api_key=os.getenv("GROQ_API_KEY"),
         )
-    
+
     elif provider == "openai":
+
         return ChatOpenAI(
             model="gpt-4o-mini",
             temperature=0,
             max_tokens=1500,
             api_key=os.getenv("OPENAI_API_KEY"),
         )
-    
-    else: # default to ollama
+
+    else:
+
         return ChatOllama(
-            model="gpt-oss:20b-cloud",  # or "llama3.1:8b"  or llama3.1:70b or "gpt-oss:20b-cloud"  or "gpt-oss:120b-cloud"
+            model="gpt-oss:20b-cloud",
             temperature=0,
             num_ctx=8192,
-            base_url=os.getenv("OLLAMA_API_BASE_URL"),  # remove if using local
+            base_url=os.getenv("OLLAMA_API_BASE_URL"),
         )
+
 
 LLM = get_llm()
 
+
 # ============================================================
-# JSON PARSER
+# STRUCTURED OUTPUT SCHEMAS
 # ============================================================
-def safe_parse(text: str):
-    try:
-        return json.loads(text)
-    except:
-        text = re.sub(r'```json|```', '', text).strip()
-        try:
-            return json.loads(text)
-        except:
-            print("❌ JSON PARSE FAILED:", text[:300])
-            return {}
+class ExperienceProjectSchema(BaseModel):
+    experience: List[WorkExperience] = Field(default_factory=list)
+    projects: List[Project] = Field(default_factory=list)
+
+
+class EducationSkillsSchema(BaseModel):
+    education: List[Education] = Field(default_factory=list)
+    skills: SkillSet = Field(default_factory=SkillSet)
+
+
+class CertificationOthersSchema(BaseModel):
+    certifications: List[Certification] = Field(default_factory=list)
+    languages: List[Language] = Field(default_factory=list)
+    awards: List[Award] = Field(default_factory=list)
+    social_media: List[SocialMedia] = Field(default_factory=list)
+    work_samples: List[WorkSample] = Field(default_factory=list)
+    white_papers: List[WhitePaper] = Field(default_factory=list)
+    presentations: List[Presentation] = Field(default_factory=list)
+    patents: List[Patent] = Field(default_factory=list)
 
 
 # ============================================================
 # SPLIT NODE
 # ============================================================
 def split_node(state: ResumeState):
+
     text = state["raw_text"]
 
     sections = {
@@ -119,30 +157,28 @@ def split_node(state: ResumeState):
     current = "others"
 
     for line in text.split("\n"):
+
         l = line.lower()
 
-        if any(x in l for x in [
-            "experience", "work experience", "professional experience",
-            "employment", "career history"
-        ]):
+        if any(x in l for x in [ "experience","work experience", "professional experience", "employment", "career history" ]):
             current = "experience"
 
-        elif any(x in l for x in ["education", "qualification"]):
+        elif any(x in l for x in [ "education", "qualification" ]):
             current = "education"
 
-        elif any(x in l for x in ["skill", "technology"]):
+        elif any(x in l for x in [ "skill", "technology" ]):
             current = "skills"
 
-        elif any(x in l for x in ["project", "projects", "academic project", "personal project"]):
+        elif any(x in l for x in ["project","projects","academic project","personal project"]):
             current = "projects"
 
-        elif any(x in l for x in ["certification", "certifications", "license", "licenses"]):
+        elif any(x in l for x in ["certification","certifications","license","licenses"]):
             current = "certifications"
 
-        elif any(x in l for x in ["contact", "phone", "email"]):
+        elif any(x in l for x in ["contact","phone","email"]):
             current = "contact"
 
-        elif any(x in l for x in ["language", "award", "publication", "patent", "presentation", "portfolio", "social", "activity"]):
+        elif any(x in l for x in ["language","award","publication","patent","presentation","portfolio","social","activity"]):
             current = "others"
 
         sections[current] += line + "\n"
@@ -154,7 +190,11 @@ def split_node(state: ResumeState):
 # BASIC & CONTACT INFO NODE
 # ============================================================
 async def basic_info_node(state: ResumeState):
-    text = (state["sections"]["contact"] + state["raw_text"])[:6000]
+
+    text = (
+        state["sections"]["contact"]
+        + state["raw_text"]
+    )[:6000]
 
     prompt = f"""
 You are an expert resume parser. Extract candidate basic information and contact details into the provided JSON schema.
@@ -162,7 +202,6 @@ You are an expert resume parser. Extract candidate basic information and contact
 STRICT INSTRUCTIONS:
 - DO NOT skip any information present in the text.
 - Follow the Field Definitions strictly to avoid mixing up data.
-- Return ONLY valid JSON.
 
 FIELD DEFINITIONS:
 - "full_name": Candidate's complete name.
@@ -210,69 +249,22 @@ FIELD DEFINITIONS:
   - "address": Full residential or mailing address.
   - "alternative_phone": Alternative contact number.
 
-Return ONLY valid JSON.
-
-{{
- "full_name": "",
- "gender": "",
- "date_of_birth": "",
- "religion": "",
- "marital_status": "",
- "current_company": "",
- "current_designation": "",
- "total_experience": "",
- "relevant_experience": "",
- "total_companies_worked": null,
- "current_city": "",
- "current_state": "",
- "current_country": "",
- "preferred_country": "",
- "preferred_state": "",
- "preferred_city": "",
- "hometown": "",
- "graduation_degree": "",
- "graduation_specialization": "",
- "graduation_year": "",
- "post_graduation_degree": "",
- "post_graduation_specialization": "",
- "post_graduation_year": "",
- "department": "",
- "role": "",
- "industry": "",
- "reason_for_change": "",
- "is_permanent": null,
- "is_contractual": null,
- "is_full_time": null,
- "is_part_time": null,
- "preferred_shift": "",
- "preferred_work_locations": [],
- "expected_ctc": "",
- "notice_period": "",
- "status": "",
- "remarks": "",
- "summary": "",
- "keywords": [],
- "contact_info": {{
-   "email": "",
-   "phone": "",
-   "location": "",
-   "linkedin": "",
-   "github": "",
-   "portfolio": "",
-   "address": "",
-   "alternative_phone": ""
- }}
-}}
-
 TEXT:
 {text}
 """
 
-    res = await LLM.ainvoke(prompt)
-    print("BASIC & CONTACT RAW:", res.content)
+    structured_llm = LLM.with_structured_output(
+        ResumeData
+    )
 
-    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
+    res = await structured_llm.ainvoke(prompt)
 
+    print("BASIC & CONTACT RAW:", res)
+
+    return {
+        "extracted": res.model_dump(),
+        "llm_call_count": 1
+    }
 
 
 # ============================================================
@@ -280,7 +272,12 @@ TEXT:
 # ============================================================
 async def experience_project_node(state: ResumeState):
 
-    section = (state["sections"]["experience"] + "\n" + state["sections"]["projects"] + state["raw_text"])[:6000]
+    section = (
+        state["sections"]["experience"]
+        + "\n"
+        + state["sections"]["projects"]
+        + state["raw_text"]
+    )[:6000]
 
     prompt = f"""
 You are an expert resume parser. Extract candidate experience and projects information into the provided JSON schema.
@@ -291,128 +288,74 @@ STRICT INSTRUCTIONS:
 - Extract ALL roles and projects even if formatting is messy.
 - Infer company, role, project title, and dates.
 - Split multiple roles and projects properly.
-- Return ONLY valid JSON.
-
-{{
- "experience": [
-   {{
-     "company": "",
-     "job_title": "",
-     "location": "",
-     "duration": "",
-     "employment_type": "",
-     "salary": "",
-     "start_date": "",
-     "end_date": "",
-     "is_current_employment": false,
-     "responsibilities": [],
-     "technologies": []
-   }}
- ],
- "projects": [
-   {{
-     "title": "",
-     "description": "",
-     "url": "",
-     "technologies": [],
-     "start_date": "",
-     "end_date": ""
-   }}
- ]
-}}
 
 TEXT:
 {section}
 """
 
-    res = await LLM.ainvoke(prompt)
-    parsed = safe_parse(res.content)
+    structured_llm = LLM.with_structured_output(
+        ExperienceProjectSchema
+    )
+
     calls = 1
 
-    print("EXP & PROJ RAW:", parsed)
+    try:
 
-    # fallback
-    if not parsed.get("experience") and not parsed.get("projects"):
-        print("⚠️ EXP_PROJ fallback triggered")
+        res = await structured_llm.ainvoke(prompt)
 
-        fallback_prompt = f"""
-You are an expert resume parser. Extract candidate experience and projects information into the provided JSON schema.
+        parsed = res.model_dump()
 
-STRICT INSTRUCTIONS:
-- DO NOT skip any information.
-- Extract ALL experience and projects from this resume.
-- Return ONLY valid JSON.
+        print("EXP & PROJ RAW:", parsed)
 
-{{
- "experience": [
-   {{
-     "company": "",
-     "job_title": "",
-     "start_date": "",
-     "end_date": ""
-   }}
- ],
- "projects": [
-   {{
-     "title": "",
-     "description": ""
-   }}
- ]
-}}
+    except Exception as e:
 
-TEXT:
-{state["raw_text"][:6000]}
-"""
+        print("EXP & PROJ ERROR:", str(e))
 
-        res2 = await LLM.ainvoke(fallback_prompt)
-        parsed = safe_parse(res2.content)
-        calls += 1
+        parsed = {
+            "experience": [],
+            "projects": []
+        }
 
-        print("EXP & PROJ FALLBACK:", parsed)
-
-    return {"extracted": parsed, "llm_call_count": calls}
+    return {
+        "extracted": parsed,
+        "llm_call_count": calls
+    }
 
 
 # ============================================================
 # EDUCATION & SKILLS NODE
 # ============================================================
 async def education_skills_node(state: ResumeState):
-    section = state["sections"]["education"] + "\n" + state["sections"]["skills"] + state["raw_text"][:2000]
+
+    section = (
+        state["sections"]["education"]
+        + "\n"
+        + state["sections"]["skills"]
+        + state["raw_text"][:2000]
+    )
 
     prompt = f"""
 You are an expert resume parser. Extract candidate education and skills into the provided JSON schema.
 
 STRICT INSTRUCTIONS:
 - DO NOT skip any information present in the text.
-- Return ONLY valid JSON.
-
-{{
- "education": [
-   {{
-     "education_level": "",
-     "institution": "",
-     "field_of_study": "",
-     "passing_year": "",
-     "gpa": ""
-   }}
- ],
- "skills": {{
-   "hard_skills": [],
-   "soft_skills": []
- }}
-}}
 
 TEXT:
 {section}
 """
 
-    res = await LLM.ainvoke(prompt)
-    print("EDU_SKILLS RAW:", res.content)
+    structured_llm = LLM.with_structured_output(
+        EducationSkillsSchema
+    )
 
-    return {"extracted": safe_parse(res.content), "llm_call_count": 1}
+    res = await structured_llm.ainvoke(prompt)
 
+    print("EDU_SKILLS RAW:", res)
 
-
+    return {
+        "extracted": res.model_dump(),
+        "llm_call_count": 1
+    }
 
 
 # ============================================================
@@ -439,93 +382,21 @@ STRICT INSTRUCTIONS:
 - Extract all available additional information.
 - Infer missing fields if possible.
 - NEVER return empty arrays if related information exists.
-- Return ONLY valid JSON.
-
-{{
-  "certifications": [
-    {{
-      "name": "",
-      "url": "",
-      "does_not_expire": false,
-      "date_obtained": ""
-    }}
-  ],
-
-  "languages": [
-    {{
-      "language": ""
-    }}
-  ],
-
-  "awards": [
-    {{
-      "title": "",
-      "issuer": "",
-      "date": ""
-    }}
-  ],
-
-  "social_media": [
-    {{
-      "name": "",
-      "url": "",
-      "description": ""
-    }}
-  ],
-
-  "work_samples": [
-    {{
-      "title": "",
-      "url": "",
-      "start_date": "",
-      "duration_month": "",
-      "is_currently_working": false,
-      "total_duration": ""
-    }}
-  ],
-
-  "white_papers": [
-    {{
-      "title": "",
-      "url": "",
-      "start_date": "",
-      "duration_month": "",
-      "description": ""
-    }}
-  ],
-
-  "presentations": [
-    {{
-      "title": "",
-      "url": "",
-      "description": ""
-    }}
-  ],
-
-  "patents": [
-    {{
-      "title": "",
-      "url": "",
-      "is_issued": false,
-      "is_pending": false,
-      "application_number": "",
-      "issue_year": "",
-      "issue_month": "",
-      "description": ""
-    }}
-  ]
-}}
 
 TEXT:
 {section}
 """
 
-    res = await LLM.ainvoke(prompt)
+    structured_llm = LLM.with_structured_output(
+        CertificationOthersSchema
+    )
 
-    print("CERTIFICATION_OTHERS RAW:", res.content)
+    res = await structured_llm.ainvoke(prompt)
+
+    print("CERTIFICATION_OTHERS RAW:", res)
 
     return {
-        "extracted": safe_parse(res.content),
+        "extracted": res.model_dump(),
         "llm_call_count": 1
     }
 
@@ -534,24 +405,22 @@ TEXT:
 # MERGE (NO LLM - PURE PYTHON)
 # ============================================================
 def merge_node(state: ResumeState):
+
     data = state["extracted"] or {}
 
     final = {
-        # ===== BASIC =====
         "full_name": data.get("full_name"),
         "gender": data.get("gender"),
         "date_of_birth": data.get("date_of_birth"),
         "religion": data.get("religion"),
         "marital_status": data.get("marital_status"),
 
-        # ===== CURRENT JOB =====
         "current_company": data.get("current_company"),
         "current_designation": data.get("current_designation"),
         "total_experience": data.get("total_experience"),
         "relevant_experience": data.get("relevant_experience"),
         "total_companies_worked": data.get("total_companies_worked"),
 
-        # ===== LOCATION =====
         "current_country": data.get("current_country"),
         "current_state": data.get("current_state"),
         "current_city": data.get("current_city"),
@@ -561,7 +430,6 @@ def merge_node(state: ResumeState):
         "preferred_city": data.get("preferred_city"),
         "hometown": data.get("hometown"),
 
-        # ===== EDUCATION SUMMARY =====
         "graduation_degree": data.get("graduation_degree"),
         "graduation_specialization": data.get("graduation_specialization"),
         "graduation_year": data.get("graduation_year"),
@@ -570,13 +438,11 @@ def merge_node(state: ResumeState):
         "post_graduation_specialization": data.get("post_graduation_specialization"),
         "post_graduation_year": data.get("post_graduation_year"),
 
-        # ===== PROFESSIONAL =====
         "department": data.get("department"),
         "role": data.get("role"),
         "industry": data.get("industry"),
         "reason_for_change": data.get("reason_for_change"),
 
-        # ===== JOB PREF =====
         "is_permanent": data.get("is_permanent"),
         "is_contractual": data.get("is_contractual"),
         "is_full_time": data.get("is_full_time"),
@@ -585,38 +451,23 @@ def merge_node(state: ResumeState):
         "preferred_shift": data.get("preferred_shift"),
         "preferred_work_locations": data.get("preferred_work_locations") or [],
 
-        # ===== HR =====
         "expected_ctc": data.get("expected_ctc"),
         "notice_period": data.get("notice_period"),
         "status": data.get("status"),
         "remarks": data.get("remarks"),
 
-        # ===== SUMMARY =====
         "summary": data.get("summary"),
 
-        # ===== KEYWORDS =====
         "keywords": data.get("keywords") or [],
 
-        # ===== CONTACT =====
-        "contact_info": data.get("contact_info") or {
-            "email": None,
-            "phone": None,
-            "location": None,
-            "linkedin": None,
-            "github": None,
-            "portfolio": None,
-            "address": None,
-            "alternative_phone": None
-        },
+        "contact_info": data.get("contact_info"),
 
-        # ===== CORE LISTS =====
         "experience": data.get("experience") or [],
         "education": data.get("education") or [],
-        "skills": data.get("skills") or {"hard_skills": [], "soft_skills": []},
+        "skills": data.get("skills"),
         "projects": data.get("projects") or [],
         "certifications": data.get("certifications") or [],
 
-        # ===== EXTRA =====
         "languages": data.get("languages") or [],
         "awards": data.get("awards") or [],
         "social_media": data.get("social_media") or [],
@@ -633,23 +484,37 @@ def merge_node(state: ResumeState):
 # SANITIZE
 # ============================================================
 def sanitize(data: dict):
+
     if not data:
         return {}
 
     list_fields = [
-        "experience", "education", "projects", "certifications",
-        "languages", "awards", "social_media", "work_samples",
-        "white_papers", "presentations", "patents",
-        "preferred_work_locations",    "keywords"
+        "experience",
+        "education",
+        "projects",
+        "certifications",
+        "languages",
+        "awards",
+        "social_media",
+        "work_samples",
+        "white_papers",
+        "presentations",
+        "patents",
+        "preferred_work_locations",
+        "keywords"
     ]
 
     for key in list_fields:
+
         if key not in data or data[key] is None:
             data[key] = []
 
-    # ✅ ensure nested structure
     if "skills" not in data or data["skills"] is None:
-        data["skills"] = {"hard_skills": [], "soft_skills": []}
+
+        data["skills"] = {
+            "hard_skills": [],
+            "soft_skills": []
+        }
 
     return data
 
@@ -658,12 +523,16 @@ def sanitize(data: dict):
 # VALIDATE
 # ============================================================
 def validate_node(state: ResumeState):
+
     print("FINAL BEFORE VALIDATION:", state["final"])
 
     data = sanitize(state["final"])
+
     validated = ResumeData.model_validate(data)
 
-    return {"final": validated.model_dump()}
+    return {
+        "final": validated.model_dump()
+    }
 
 
 # ============================================================
@@ -675,9 +544,9 @@ builder.add_node("split", split_node)
 builder.add_node("basic", basic_info_node)
 builder.add_node("experience_project", experience_project_node)
 builder.add_node("education_skills", education_skills_node)
+builder.add_node("certification_others", certification_others_node)
 builder.add_node("merge", merge_node)
 builder.add_node("validate", validate_node)
-builder.add_node("certification_others", certification_others_node)
 
 builder.set_entry_point("split")
 
@@ -701,6 +570,7 @@ graph = builder.compile()
 # MAIN
 # ============================================================
 async def extract_resume_agentic(text: str):
+
     result = await graph.ainvoke({
         "raw_text": text,
         "sections": {},
@@ -709,6 +579,9 @@ async def extract_resume_agentic(text: str):
         "llm_call_count": 0
     })
 
-    print(f"🔥 TOTAL LLM CALLS MADE BY AGENT: {result.get('llm_call_count', 0)} 🔥")
+    print(
+        f"🔥 TOTAL LLM CALLS MADE BY AGENT: "
+        f"{result.get('llm_call_count', 0)} 🔥"
+    )
 
     return result["final"]

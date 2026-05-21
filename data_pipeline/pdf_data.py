@@ -2,18 +2,32 @@ import io
 from typing import List
 import fitz  # PyMuPDF
 import easyocr
+import pytesseract
+from PIL import Image
 
 
 class PDFTextExtractor:
 
     def __init__(self):
-        # Lazy loading for OCR
-        # OCR model loads only when needed
+        """Initialize PDFTextExtractor, ensuring required OCR dependencies."""
+        self._ensure_pytesseract()
+        # Lazy loading for OCR model (EasyOCR) loads only when needed
         self.reader = None
 
     # =========================================================
     # LOAD OCR MODEL ONLY WHEN REQUIRED
     # =========================================================
+    def _ensure_pytesseract(self):
+        """Check if pytesseract is available; install it via uv if missing."""
+        try:
+            import importlib
+            importlib.import_module("pytesseract")
+        except ImportError:
+            import subprocess, sys
+            subprocess.run([sys.executable, "-m", "uv", "pip", "install", "pytesseract"], check=True)
+        # Verify import after installation
+        import pytesseract  # noqa: F401
+
     def get_reader(self):
         if self.reader is None:
             print("[OCR] Loading EasyOCR model...")
@@ -100,10 +114,8 @@ class PDFTextExtractor:
     # =====================================================
     # OCR from images
     # =====================================================
-    def _extract_text_from_images(
-        self,
-        image_bytes_list: List[bytes]
-    ) -> str:
+    
+
 
         all_text = []
         reader = self.get_reader()
